@@ -32,7 +32,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "target/*.jar"
+          source: "target/TrackOps-0.0.1-SNAPSHOT.jar"
           target: "/opt/trackops/"
 
       - name: Restart service
@@ -43,5 +43,5 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/trackops
-            mv *.jar app.jar
+            mv TrackOps-0.0.1-SNAPSHOT.jar app.jar
             sudo systemctl restart trackops
