@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.akshat.trackops.auth.dto.LoginRequest;
 import com.akshat.trackops.auth.dto.LoginResponse;
 import com.akshat.trackops.auth.security.JwtService;
+import com.akshat.trackops.user.dto.UserResponse;
 import com.akshat.trackops.user.entity.User;
 import com.akshat.trackops.user.repository.UserRepository;
 
@@ -38,6 +39,20 @@ public class AuthService {
         response.setEmail(user.get().getEmail());
         response.setRole(user.get().getRole().name());
         response.setToken(jwtService.generateToken(user.get()));
+        return response;
+    }
+
+    public UserResponse me(String token) throws Exception{
+        String email = jwtService.extractEmail(token);
+        Optional<User> user = repo.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new Exception("User does not exist");
+        }
+        UserResponse response = new UserResponse();
+        response.setEmail(user.get().getEmail());
+        response.setId(user.get().getId());
+        response.setName(user.get().getName());
+        response.setRole(user.get().getRole().name());
         return response;
     }
 }
