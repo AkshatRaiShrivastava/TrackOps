@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "target/*.jar"
-          target: "/root/trackops"
+          target: "/opt/myapp/"
 
       - name: Restart service
         uses: appleboy/ssh-action@v1
@@ -42,4 +42,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            cd /opt/myapp
+            mv *.jar app.jar
             sudo systemctl restart trackops
