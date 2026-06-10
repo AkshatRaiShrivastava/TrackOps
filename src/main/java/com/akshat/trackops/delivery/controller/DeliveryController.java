@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.akshat.trackops.common.ApiResponse;
 import com.akshat.trackops.delivery.dto.CreateDeliveryRequest;
 import com.akshat.trackops.delivery.dto.DeliveryResponse;
+import com.akshat.trackops.delivery.dto.UpdateRequestStatus;
 import com.akshat.trackops.delivery.service.DeliveryService;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -66,5 +69,22 @@ public class DeliveryController {
         }
     }
 
+    @PreAuthorize("hasRole('AGENT')")
+    @GetMapping("/my")
+    public ResponseEntity<List<DeliveryResponse>> getAgentDeliveries(){
+        return ResponseEntity.status(HttpStatus.OK).body(service.getAgentDeliveries());
+    }
+
+    @PreAuthorize("hasRole('AGENT')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<DeliveryResponse>> updateDeliveryStatus( @Valid @RequestBody UpdateRequestStatus status, @PathVariable Long id){
+        try{
+            DeliveryResponse response = service.updateDeliveryStatus(id, status);
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<DeliveryResponse>(true, "Status updated successfully", response));
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
     
 }

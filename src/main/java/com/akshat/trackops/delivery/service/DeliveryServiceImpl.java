@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.akshat.trackops.delivery.dto.CreateDeliveryRequest;
 import com.akshat.trackops.delivery.dto.DeliveryResponse;
+import com.akshat.trackops.delivery.dto.UpdateRequestStatus;
 import com.akshat.trackops.delivery.entity.Delivery;
 import com.akshat.trackops.delivery.entity.DeliveryStatus;
 import com.akshat.trackops.delivery.repository.DeliveryRepository;
@@ -64,7 +67,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             response.setStatus(delivery.getStatus().name());
             response.setTitle(delivery.getTitle());
             if (delivery.getAssignedAgent() != null) {
-                
+
                 response.setAssignedAgentEmail(delivery.getAssignedAgent().getEmail());
                 response.setAssignedAgentId(delivery.getAssignedAgent().getId());
                 response.setAssignedAgentName(delivery.getAssignedAgent().getName());
@@ -99,7 +102,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         User user = userRepository.findById(agentId).orElseThrow(() -> new Exception("User does not exist"));
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new Exception("Delivery does not exist"));
-        if (user.getRole() == Role.AGENT ) {
+        if (user.getRole() == Role.AGENT) {
             if (delivery.getAssignedAgent() != null) {
                 throw new Exception("Delivery is already assigned");
             }
@@ -121,6 +124,67 @@ public class DeliveryServiceImpl implements DeliveryService {
             throw new Exception("Role type is not AGENT");
         }
 
+    }
+
+    @Override
+    public List<DeliveryResponse> getAgentDeliveries() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+        // Long id = userRepository.findByEmail(email).get().getId();
+        Optional<User> user = userRepository.findByEmail(email);
+        List<DeliveryResponse> list = new ArrayList<>();
+
+        for (Delivery delivery : deliveryRepository.findByAssignedAgent(user.get())) {
+            DeliveryResponse response = new DeliveryResponse();
+            response.setCreatedAt(delivery.getCreatedAt());
+            response.setDropLocation(delivery.getDropLocation());
+            response.setId(delivery.getId());
+            response.setPickupLocation(delivery.getPickupLocation());
+            response.setStatus(delivery.getStatus().name());
+            response.setTitle(delivery.getTitle());
+            response.setAssignedAgentEmail(delivery.getAssignedAgent().getEmail());
+            response.setAssignedAgentId(delivery.getAssignedAgent().getId());
+            response.setAssignedAgentName(delivery.getAssignedAgent().getName());
+            list.add(response);
+        }
+
+        return list;
+    }
+
+    @Override
+    public DeliveryResponse updateDeliveryStatus(Long deliveryId, UpdateRequestStatus status) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Optional<User> user = userRepository.findByEmail(email);
+        if (deliveryRepository.existsById(deliveryId)) {
+            
+            Optional<Delivery> delivery = deliveryRepository.findById(deliveryId);
+
+            if (delivery.get().getAssignedAgent() == user.get()) {
+
+                delivery.get().setStatus(status.getStatus());
+                deliveryRepository.save(delivery.get());
+
+                DeliveryResponse response = new DeliveryResponse();
+                response.setCreatedAt(delivery.get().getCreatedAt());
+                response.setDropLocation(delivery.get().getDropLocation());
+                response.setId(delivery.get().getId());
+                response.setPickupLocation(delivery.get().getPickupLocation());
+                response.setStatus(delivery.get().getStatus().name());
+                response.setTitle(delivery.get().getTitle());
+                response.setAssignedAgentEmail(delivery.get().getAssignedAgent().getEmail());
+                response.setAssignedAgentId(delivery.get().getAssignedAgent().getId());
+                response.setAssignedAgentName(delivery.get().getAssignedAgent().getName());
+                return response;
+            }
+            else{
+                throw new Exception("This delivery is not assigned to you !!");
+            }
+        }
+        else{
+            throw new Exception("Delivery does not exist !!");
+        }
     }
 
 }

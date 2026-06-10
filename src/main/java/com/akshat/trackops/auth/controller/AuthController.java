@@ -18,7 +18,7 @@ import com.akshat.trackops.user.dto.UserResponse;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 public class AuthController {
     AuthService service;
     public AuthController(AuthService service){
