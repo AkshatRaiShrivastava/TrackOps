@@ -8,7 +8,7 @@ import com.akshat.trackops.delivery.dto.UpdateRequestStatus;
 
 public interface DeliveryService {
     DeliveryResponse createDelivery(CreateDeliveryRequest request) throws Exception;
-    List<DeliveryResponse> getDeliveries();
+    List<DeliveryResponse> getDeliveries(int page, int size, String sortBy);
     DeliveryResponse deleteDelivery(Long id) throws Exception;
     DeliveryResponse assignAgent(Long agentId, Long deliveryId) throws Exception;
     List<DeliveryResponse> getAgentDeliveries();

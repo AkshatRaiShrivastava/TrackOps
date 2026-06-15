@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -56,9 +59,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public List<DeliveryResponse> getDeliveries() {
+    public List<DeliveryResponse> getDeliveries(int page, int size, String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+
         List<DeliveryResponse> deliveries = new ArrayList<>();
-        for (Delivery delivery : deliveryRepository.findAll()) {
+        for (Delivery delivery : deliveryRepository.findAll(pageable)) {
             DeliveryResponse response = new DeliveryResponse();
             response.setCreatedAt(delivery.getCreatedAt());
             response.setDropLocation(delivery.getDropLocation());

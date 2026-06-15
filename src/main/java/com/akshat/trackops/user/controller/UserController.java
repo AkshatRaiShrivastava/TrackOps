@@ -42,8 +42,10 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public List<UserResponse> getAllUsers(){
-        return  userService.getAllUsers();
+    public List<UserResponse> getAllUsers(
+        @RequestParam int page, @RequestParam int size, @RequestParam String sortBy
+    ){
+        return  userService.getAllUsers(page, size, sortBy);
     }
     
     

@@ -5,6 +5,11 @@ import com.akshat.trackops.user.dto.UserResponse;
 import com.akshat.trackops.user.entity.Role;
 import com.akshat.trackops.user.entity.User;
 import com.akshat.trackops.user.repository.UserRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,9 +48,10 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<UserResponse> getAllUsers() {
+    public List<UserResponse> getAllUsers(int page, int size, String sortBy) {
+        Pageable pageable = PageRequest.of(page, size,Sort.by(sortBy));
         List<UserResponse> list = new ArrayList<>();
-        List<User> users = userRepo.findAll();
+        Page<User> users = userRepo.findAll(pageable);
         for (User user:users){
             UserResponse response = new UserResponse();
             response.setId(user.getId());

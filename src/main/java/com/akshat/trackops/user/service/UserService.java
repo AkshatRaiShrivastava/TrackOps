@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface UserService {
     UserResponse createUser(CreateUserRequest request) throws Exception;
-    List<UserResponse> getAllUsers();
+    List<UserResponse> getAllUsers(int page, int size, String sortBy);
     UserResponse deleteUser(Long id) throws Exception;
 }

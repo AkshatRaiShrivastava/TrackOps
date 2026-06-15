@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.akshat.trackops.common.ApiResponse;
@@ -43,8 +44,13 @@ public class DeliveryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<DeliveryResponse>> getDeliveries(){
-        return ResponseEntity.status(HttpStatus.OK).body(service.getDeliveries());
+    public ResponseEntity<List<DeliveryResponse>> getDeliveries(
+        @RequestParam(defaultValue = "0") int page, 
+        @RequestParam(defaultValue = "0") int size,
+        @RequestParam(defaultValue = "id") String sortBy
+    ){
+        
+        return ResponseEntity.status(HttpStatus.OK).body(service.getDeliveries(page, size, sortBy));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
